@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.WebSockets;
+using System.Text;
+using System.Threading.Tasks;
+using Youtube.Sockets.SocketsManager;
+
+namespace Youtube.Sockets.Handlers
+{
+    public class WebSocketMessageHandler : SocketHandler
+    {
+        public WebSocketMessageHandler(ConnectionManager connections) : base(connections)
+        {
+        }
+        public override async Task OnConnected(WebSocket socket)
+        {
+            await base.OnConnected(socket);
+            var SocketId = _Connections.GetId(socket);
+            await SendMessageToAll($"{SocketId} Joined the party");
+        }
+
+        public override async Task Receive(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
+        {
+            var SocketId = _Connections.GetId(socket);
+            var Message = $"{SocketId} said: {Encoding.UTF8.GetString(buffer, 0, result.Count)}";
+            await SendMessageToAll(Message);
+        }
+    }
+}
